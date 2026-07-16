@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
         }
 
         AlarmReceiver.ensureChannel(this);
+        AlarmService.ensureRunning(this);
         SyncReceiver.schedulePeriodic(this);
 
         if (Build.VERSION.SDK_INT >= 33
@@ -59,6 +60,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume(){
         super.onResume();
+        AlarmService.ensureRunning(this);
         renderList();
         SyncReceiver.trigger(this);
         findViewById(R.id.ll_tasks).postDelayed(this::renderList, 2500);

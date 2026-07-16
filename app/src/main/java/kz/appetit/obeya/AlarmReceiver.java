@@ -9,7 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-/** Срабатывает в точное время задачи и поднимает полноэкранный будильник. */
+/** Срабатывает в точное время задачи и передаёт звонок фоновой службе. */
 public class AlarmReceiver extends BroadcastReceiver {
     public static final String CHANNEL_ID = "obeya_alarm";
     private static final int NOTIF_ID = 4711;
@@ -20,13 +20,15 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (taskId == null) return;
         Task t = TaskStore.get(context, taskId);
         if (t == null || t.acknowledged) return;
+        AlarmService.ring(context, taskId);   // служба проиграет сигнал и поднимет экран
+    }
 
+    /** Поднять полноэкранный экран задачи (вызывает служба). */
+    static void showFullScreen(Context context, Task t){
         ensureChannel(context);
-
         Intent full = new Intent(context, AlarmActivity.class);
-        full.putExtra("taskId", taskId);
+        full.putExtra("taskId", t.id);
         full.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
         int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) piFlags |= PendingIntent.FLAG_IMMUTABLE;
         PendingIntent fullPi = PendingIntent.getActivity(context, t.requestCode(), full, piFlags);
@@ -42,7 +44,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setFullScreenIntent(fullPi, true);
-
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) nm.notify(NOTIF_ID, b.build());
         try { context.startActivity(full); } catch (Exception ignored) {}

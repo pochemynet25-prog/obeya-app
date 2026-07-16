@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-/** После перезагрузки телефона пересоздаёт будильники и синхронизацию. */
+/** После перезагрузки: запустить службу, пересоздать будильники и синхронизацию. */
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent){
@@ -14,6 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
                 || a.equals("android.intent.action.QUICKBOOT_POWERON")
                 || a.equals(Intent.ACTION_MY_PACKAGE_REPLACED)){
             AlarmReceiver.ensureChannel(context);
+            AlarmService.ensureRunning(context);
             AlarmScheduler.rescheduleAll(context, TaskStore.getAll(context));
             SyncReceiver.schedulePeriodic(context);
             SyncReceiver.trigger(context);
