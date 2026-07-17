@@ -63,6 +63,7 @@ public class MainActivity extends Activity {
         AlarmService.ensureRunning(this);
         renderList();
         SyncReceiver.trigger(this);
+        Push.fetchAndRegister(this);
         findViewById(R.id.ll_tasks).postDelayed(this::renderList, 2500);
     }
 
