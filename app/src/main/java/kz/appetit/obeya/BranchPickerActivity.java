@@ -75,6 +75,7 @@ public class BranchPickerActivity extends Activity {
 
     private void choose(String id, String name){
         Config.setBranch(this, id, name);
+        Push.fetchAndRegister(this);
         AlarmReceiver.ensureChannel(this);
         SyncReceiver.schedulePeriodic(this);
         SyncReceiver.trigger(this);
