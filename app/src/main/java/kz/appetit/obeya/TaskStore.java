@@ -75,4 +75,17 @@ public final class TaskStore {
         for (Task t : getAll(c)) if (t.acknowledged && !t.ackSynced) out.add(t);
         return out;
     }
+public static synchronized void upsertOne(Context c, Task t){
+        List<Task> all = getAll(c);
+        for (int i = 0; i < all.size(); i++){
+            if (all.get(i).id.equals(t.id)){
+                if (all.get(i).acknowledged) return;
+                all.set(i, t);
+                saveAll(c, all);
+                return;
+            }
+        }
+        all.add(t);
+        saveAll(c, all);
+    }
 }
